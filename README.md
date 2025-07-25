@@ -1,2 +1,2 @@
-# BrainSec2.0
+# DeskBrainSec
 Optimizing BrainSec
