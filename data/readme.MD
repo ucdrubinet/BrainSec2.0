@@ -1,0 +1,5 @@
+-- gt folder
+-- test_wsi
+-- wsidir - patches of wsi /tile.py
+-- maskdir - patches of gt /tile.py
+-- labeledmaskdir - patches of gt - label converted /rgb_to_labels.py
