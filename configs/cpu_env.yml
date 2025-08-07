@@ -1,0 +1,22 @@
+name: mac_onnx
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pillow
+  - gdal
+  - openslide
+  - openslide-python
+  - openjpeg
+  - libtiff
+  - imageio
+  - scikit-image
+  - matplotlib
+  - jupyter
+  - notebook
+  - onnxruntime
+  - pip:
+      - large-image

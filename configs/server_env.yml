@@ -1,0 +1,38 @@
+name: ai_path
+channels:
+  - defaults
+dependencies:
+  - openssl=3.0.16
+  - pip=25.1
+  - python=3.10.18
+  - pip:
+    - bitsandbytes==0.46.1
+    - cachetools==6.1.0
+    - certifi==2025.7.9
+    - huggingface-hub==0.33.4
+    - large-image==1.32.11
+    - large-image-source-openslide==1.32.11
+    - matplotlib==3.10.3
+    - numpy==2.2.6
+    - onnx==1.18.0
+    - onnxruntime==1.22.1
+    - openslide-bin==4.0.0.8
+    - openslide-python==1.4.2
+    - peft==0.16.0
+    - pillow==11.3.0
+    - protobuf==6.31.1
+    - psutil==7.0.0
+    - pyparsing==3.2.3
+    - pyyaml==6.0.2
+    - requests==2.32.4
+    - safetensors==0.5.3
+    - setuptools==78.1.1
+    - tifftools==1.6.1
+    - tokenizers==0.21.2
+    - torch==2.7.1
+    - torchvision==0.22.1
+    - tqdm==4.67.1
+    - transformers==4.53.2
+    - urllib3==2.5.0
+    - wheel==0.45.1
+prefix: /home/ajinkya/.conda/envs/ai_path
