@@ -13,33 +13,7 @@ Run inference with SegFormer models on whole-slide-images (WSI).
   - quantized models (CPU)
 - Utilities split into modular files for reuse
 
-## Repo layout (important paths)
-- src/
-  - finetuning/
-    - data.py            — WSIDataset & transforms
-    - model.py           — model loaders (pretrained, lora, qlora, finetuned)
-    - train.py           — training loops (standard & PEFT)
-    - PEFT_lora.py
-    - PEFT_qlora.py
-    - finetune.py        — CLI / orchestration (select mode)
-  - inference/
-    - loadmodel.py       — single loader for pretrained/finetuned/lora/qlora
-    - model_utils.py     — shared model helpers
-    - transform_utils.py
-    - postprocess_utils.py
-    - inference_*.py     — multiple inference entrypoints
-  - quantize/
-    - quantize.py
-    - inference_quantized.py
-- models/
-  - ft_models/           — saved finetuned models and adapters (large files)
-  - merged_lora_segformer/
-  - segformer_JC/
-  - quantized_models/
-- data/
-  - wsidir/              — WSI tiles
-  - labeledmaskdir/      — tile-level labels (converted masks)
-  - gt/                  — ground-truth full images / masks
+
 
 ## Models (stored on Google Drive)
 
@@ -86,6 +60,10 @@ model = load_model("finetuned_lastlayer", device, model_dir="/home/ajinkya/segme
 5. Quantize
 - Use src/quantize/quantize.py to quantize merged models and save quantized weights/config.
 - For CPU inference, load config, instantiate model, call `torch.quantization.quantize_dynamic(...)` and load the quantized state_dict (see src/quantize/inference_quantized.py).
+
+6. ONNX Conversion
+- use src/onnxformatting/to_onnx.py to convert models to the onnx format
+- use src/onnxformatting/inference_onnx.py to run inference (CPU or GPU) using the onnx model 
 
 ## Notes / best practices
 - Do NOT commit large binary model files to git. Keep large weights in `models/` and add them to `.gitignore`.
