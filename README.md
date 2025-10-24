@@ -41,6 +41,16 @@ Run inference with SegFormer models on whole-slide-images (WSI).
   - labeledmaskdir/      — tile-level labels (converted masks)
   - gt/                  — ground-truth full images / masks
 
+## Models (stored on Google Drive)
+
+Model weight files are large and are hosted on Google Drive (not in this repo). Before running training or inference, download the required model folders into the local `models/` directory so the code can find them from here: https://drive.google.com/drive/folders/1NbLP4E-m5RhgTmHj4mcee1ZR6OcevJIm?usp=sharing
+
+```bash
+mkdir -p models
+unzip ~/Downloads/model.zip -d models/
+```
+
+
 ## Quickstart
 
 1. Create and Setup environment:
