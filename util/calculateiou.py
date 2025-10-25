@@ -1,4 +1,4 @@
-'''script to calculate iou'''
+'''Script to calculate iou by comparing ground truth and predicted segmentation masks'''
 
 import numpy as np
 from PIL import Image
@@ -24,9 +24,6 @@ GROUND_TRUTH_PATHS = {
     "BG": "/home/ajinkya/BS_two/data/gt/NA4972-02_AB17-24-Background.png",
     "WM": "/home/ajinkya/BS_two/data/gt/NA4972-02_AB17-24-White.png",
     "GM": "/home/ajinkya/BS_two/data/gt/NA4972-02_AB17-24-Gray.png"
-    # "BG": "/cache/Luca/Datasets/WMGM_data/gt/box_control_groundtruth/groundtruth/NA4894-02_AB17-24-Background.png",
-    # "WM": "/cache/Luca/Datasets/WMGM_data/gt/box_control_groundtruth/groundtruth/NA4894-02_AB17-24-White.png",
-    # "GM": "/cache/Luca/Datasets/WMGM_data/gt/box_control_groundtruth/groundtruth/NA4894-02_AB17-24-Gray.png"
 }
 
 PREDICTION_PATH = "/home/ajinkya/BS_two/src/squeezemodel/output_inference_onnx_cpu.png"
@@ -42,10 +39,8 @@ print(pred_img_size)
 if(gt_size != pred_img_size):
     pred_img = pred_img.resize(gt_size, Image.NEAREST)  
 print(pred_img.size)
-
-
-# pred_img.save("/cache/Ajinkya/BS_optimize/data/brainseg/images/resized_vanilla.png")  # Save resized prediction mask
 pred_img = np.array(pred_img)
+
 
 # Compute IoU for each class
 for class_name, color in COLOR_MAP.items():
