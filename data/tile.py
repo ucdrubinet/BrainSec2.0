@@ -1,12 +1,9 @@
 '''script to tile wsis and save with a ID'''
-'''dont need x and y coordinates as we do inference with WSIs directly in finetuning experiments'''
-'''use file inside sampath folder if need to stitch according to IDs'''
-
-'''OPTIMAL: please add x and y coordinates to filenames'''
 
 import openslide
 from PIL import Image
 import os
+import argparse
 
 Image.MAX_IMAGE_PIXELS = None  # Disable the decompression bomb check
 
@@ -32,11 +29,16 @@ def extract_patches(wsi_path, mask_path, patch_size, output_image_dir, output_ma
 
             patch_id += 1
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract patches from a WSI and corresponding mask.")
+    parser.add_argument("--wsi_path", default="/cache/Ajinkya/BS_optimize/data/finetune/wsis/NA4894-02_AB17-24.svs")
+    parser.add_argument("--mask_path", default="/cache/Ajinkya/BS_optimize/data/finetune/masks/NA4894-02_AB17-24.png")
+    parser.add_argument("--patch_size", type=int, default=512)
+    parser.add_argument("--output_image_dir", default="/cache/Ajinkya/BS_optimize/data/finetune/wsidir")
+    parser.add_argument("--output_mask_dir", default="/cache/Ajinkya/BS_optimize/data/finetune/maskdir")
 
-extract_patches(
-    wsi_path="/cache/Ajinkya/BS_optimize/data/finetune/wsis/NA4894-02_AB17-24.svs",
-    mask_path="/cache/Ajinkya/BS_optimize/data/finetune/masks/NA4894-02_AB17-24.png",
-    patch_size=512,
-    output_image_dir="/cache/Ajinkya/BS_optimize/data/finetune/wsidir",
-    output_mask_dir="/cache/Ajinkya/BS_optimize/data/finetune/maskdir"
-)
+    args = parser.parse_args()
+
+    extract_patches(args.wsi_path, args.mask_path, args.patch_size, args.output_image_dir, args.output_mask_dir)           
+                
+            
