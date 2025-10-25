@@ -12,7 +12,7 @@ def quantize_model(model, layers=None, dtype=torch.qint8):
 
 
 
-# Load merged model (lora)
+# Load merged model (weights + adapters fused)
 config = SegformerConfig.from_pretrained("/home/ajinkya/BS_two/src/ft_models/merged_lora_segformer")
 model = SegformerForSemanticSegmentation.from_pretrained("/home/ajinkya/BS_two/src/ft_models/merged_lora_segformer")
 print(f"Main Model size: {model_size_mb(model):.2f} MB")
@@ -35,8 +35,7 @@ print(f"Quantized (All layers) size: {model_size_mb(model_quant_all):.2f} MB")
 torch.save(model_quant_all.state_dict(), "/home/ajinkya/BS_two/src/squeezemodel/quant_model_all.pth")
 config.save_pretrained("/home/ajinkya/BS_two/src/squeezemodel/quant_model_all_config")
 
-
-
+# Load back the quantized model to verify
 print(f"Model size: {model_size_mb(model_quant):.2f} MB")
 
 
