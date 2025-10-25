@@ -11,11 +11,31 @@ import time
 from datetime import timedelta
 import psutil
 import platform
-
 from loadmodel import load_model 
+import argparse
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-device = torch.device("cuda") # cpu does not work for QLoRA
+parser = argparse.ArgumentParser(description="WSI inference with Segformer")
+parser.add_argument("--model-type", type=str, default="lora",
+                    help="Model type: pretrained | finetuned_full | finetuned_lastlayer | lora | qlora")
+parser.add_argument("--model-dir", type=str, default=None,
+                    help="Path to model directory (contains config.json) or adapter dir for LoRA/QLoRA")
+parser.add_argument("--device", type=str, default=None,
+                    help="Device to use: cuda or cpu (default: cuda if available)")
+parser.add_argument("--wsi-path", type=str, default="/home/ajinkya/BS_two/data/iou_wsi/NA4972-02_AB17-24.svs",
+                    help="Path to WSI file")
+parser.add_argument("--out", type=str, default="output_inference.png")
+args = parser.parse_args()
+
+if args.device:
+    device = torch.device(args.device)
+else:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+if args.model_type == "qlora" and device.type == "cpu":
+    raise SystemExit("QLoRA requires CUDA device. Set --device cuda or choose another model type.")
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0" if device.type == "cuda" else ""
+print(f"Using device: {device}, model_type: {args.model_type}, model_dir: {args.model_dir}")
 
 COLOR_MAP = {
     0: [0, 0, 0],
@@ -23,12 +43,13 @@ COLOR_MAP = {
     2: [0, 255, 255]
 }
 
-# Check loadmodel file!
-model_type = "qlora"  # Change to 'finetuned_full', 'finetuned_lastlayer', 'lora', or 'qlora' as needed
-model_path="/home/ajinkya/segmentation/BrainSec2.0/models/ft_models/finetuned_qlora" #not needed for PEFT
-model = load_model(model_type, device)
 
-wsi_path = Path("/home/ajinkya/BS_two/data/iou_wsi/NA4972-02_AB17-24.svs")
+# determine model_dir default if not provided
+model_dir = args.model_dir 
+print(f"Loading model from: {model_dir}")
+
+model = load_model(args.model_type, device, model_dir=model_dir)
+wsi_path = Path(args.wsi_path)
 ts = large_image.getTileSource(wsi_path, format='openslide')
 metadata = ts.getMetadata()
 tile_size = 512
@@ -89,5 +110,4 @@ wsi_rgb_mask = np.zeros(
 for class_id, color in COLOR_MAP.items():
     wsi_rgb_mask[wsi_segmentation_map == class_id] = color
 wsi_rgb_mask_image = Image.fromarray(wsi_rgb_mask)
-
 wsi_rgb_mask_image.save("output_inference.png")
