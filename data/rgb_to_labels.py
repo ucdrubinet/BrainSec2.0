@@ -35,17 +35,9 @@ os.makedirs(output_dir, exist_ok=True)
 
 # Process all mask tiles
 for mask_file in os.listdir(mask_dir):
-    if mask_file.endswith(".png"):  # Process only PNG files
+    if mask_file.endswith(".png"):  
         mask_path = os.path.join(mask_dir, mask_file)
         output_path = os.path.join(output_dir, mask_file)
         mask_to_class_labels(mask_path, output_path)
         print(f"Processed {mask_file}")
-
-
-
-###TEST:
-# Load the original mask and class labels
-mask = Image.open("/cache/Ajinkya/BS_optimize/data/finetune/labeledmaskdir/patch_1000_mask.png")
-mask_array = np.array(mask)
-print(mask_array.shape)
 
