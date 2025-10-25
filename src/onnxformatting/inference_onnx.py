@@ -18,21 +18,20 @@ COLOR_MAP = {
     2: [0, 255, 255]    # Cyan
 }
 
-
-
-# Define Paths
+# Path to ONNX model
 onnx_path = "/home/ajinkya/segmentation/BrainSec2.0/models/segformer_lora.onnx"
 device = torch.device("cpu")
-# Load ONNX model
+
 ort_session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
 def run_onnx_inference(batch_tensor):
     input_name = ort_session.get_inputs()[0].name
     ort_inputs = {input_name: batch_tensor.numpy()}
     ort_outputs = ort_session.run(None, ort_inputs)
-    return torch.tensor(ort_outputs[0])  # logits
+    return torch.tensor(ort_outputs[0])  
 
+# Load WSI using large_image
 local_wsi_dir = Path("/home/ajinkya/BS_two/data/iou_wsi")
-wsi_name = "/home/ajinkya/BS_two/data/iou_wsi/NA4972-02_AB17-24.svs"
+wsi_name = "NA4972-02_AB17-24.svs"
 ts = large_image.getTileSource(
     local_wsi_dir / wsi_name,
     format='openslide'  # Explicitly use OpenSlide

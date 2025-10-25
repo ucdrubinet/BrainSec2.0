@@ -1,3 +1,4 @@
+'''convert trained segformer model to onnx format to run on CPU Engines like MacOS'''
 from transformers import SegformerForSemanticSegmentation, SegformerConfig
 import torch
 
