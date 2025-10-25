@@ -12,3 +12,6 @@ src/inference/inference_finetuned.py
 src/inference/inference_pretrained.py
 src/onnxformatting/cpu_inference.py
 src/quantize/inference_quantized.py
+
+
+src/onnxformatting/mergelora.py
