@@ -1,78 +1,49 @@
-# BrainSec2.0 — WSI segmentation toolkit
+# 🧠 BrainSec2.0 — WSI Segmentation Toolkit
 
-Run inference with SegFormer models on whole-slide-images (WSI).
+<p align="center">
+  <img src="brainsec2.png" alt="SegFormer LoRA CPU vs GPU Benchmark" width="650"/>
+  <br/>
+  <em>Figure 1: End-to-End Whole-Slide-Image (WSI) Segmentation Pipeline using SegFormer</em>
+</p>
 
-## Features
-- Dataset utilities and WSI tiling pipeline
-- Finetuning: full-model, last-layer, LoRA and QLoRA workflows
-- Quantization utilities (PyTorch dynamic quantization)
-- Inference scripts for:
-  - pretrained models
-  - finetuned models (full / last-layer)
-  - LoRA / QLoRA adapters
-  - quantized models (CPU)
-- Utilities split into modular files for reuse
+## Overview
+**BrainSec2.0** is a transformer-based segmentation toolkit for large-scale *Whole-Slide Images (WSI)* of the human brain. It extends **SegFormer** [(Xie et al., 2021)](https://arxiv.org/abs/2105.15203) with **LoRA / QLoRA fine-tuning**, **quantization**, and **ONNX-based inference** for GPU and CPU environments. The toolkit achieves *research-grade accuracy* while remaining lightweight enough for macOS laptops and low-resource desktops.
 
+## Key Features
+| Category | Description |
+|-----------|--------------|
+| **Segmentation** | White- and gray-matter segmentation on high-resolution WSIs |
+| **Fine-Tuning** | Four LoRA / QLoRA configurations for flexible adaptation |
+| **Performance** | Full-slide inference in ≈ 3 min (GPU) or ≈ 15 min (CPU / M-series Mac) |
+| **Deployment** | Quantized ONNX export for efficient CPU inference |
+| **Platform Support** | macOS, Linux, NVIDIA GPUs, and HPC clusters |
+| **Ease of Use** | Plug-and-play scripts + reproducible Conda environment |
 
+## ⚡ Quickstart
 
-## Models (stored on Google Drive)
+### Step 1 — Setup Environment
+Clone the repository and create the Conda environment:
+```bash
+git clone https://github.com/<your-username>/brainsec2.0.git
+cd brainsec2.0
+conda env create -f environment.yml
+conda activate brainsec
+```
 
-Model weight files are large and are hosted on Google Drive (not in this repo). Before running training or inference, download the required model folders into the local `models/` directory so the code can find them from here: https://drive.google.com/drive/folders/1NbLP4E-m5RhgTmHj4mcee1ZR6OcevJIm?usp=sharing
+### Step 2 — Download Models
+Model weights are large and hosted externally on Google Drive.
 
 ```bash
 mkdir -p models
 unzip ~/Downloads/model.zip -d models/
 ```
 
+### Step 3 — Run Inference
 
-## Quickstart
-
-1. Create and Setup environment:
-```
-conda env create -f environment.yml
-```
-(If you don't have requirements.txt, install common packages: torch torchvision transformers peft large_image pillow matplotlib numpy tqdm bitsandbytes)
-
-2. Prepare data (tiles / labeled masks)
-- Place tiles in data/wsidir and corresponding labeled masks in data/labeledmaskdir
-- For WSI inference, put slides in data/iou_wsi
-
-3. Finetune
-- Edit src/finetuning/finetune.py to set:
-  - model_path (base model)
-  - mode = "standard" | "lora" | "qlora"
-  - data paths and batch size
-- Run:
 ```bash
-python src/finetuning/finetune.py
+python src/inference/inference_main.py
 ```
-LoRA/QLoRA use PEFT; training function `train_peft` is in src/finetuning/train.py
 
-4. Inference
-- Use src/inference/loadmodel.py to load any model type. Example:
-```python
-from src.inference.loadmodel import load_model
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = load_model("finetuned_lastlayer", device, model_dir="/home/ajinkya/segmentation/BrainSec2.0/models/ft_models/finetuned_lastlayer", state_dict_path="<pth_path>")
+```bash
+python src/onnxformatting/inference_onnx.py
 ```
-- Run the appropriate inference script in src/inference. These scripts call shared utilities for tiling, batching, postprocess and saving masks.
-
-5. Quantize
-- Use src/quantize/quantize.py to quantize merged models and save quantized weights/config.
-- For CPU inference, load config, instantiate model, call `torch.quantization.quantize_dynamic(...)` and load the quantized state_dict (see src/quantize/inference_quantized.py).
-
-6. ONNX Conversion
-- use src/onnxformatting/to_onnx.py to convert models to the onnx format
-- use src/onnxformatting/inference_onnx.py to run inference (CPU or GPU) using the onnx model 
-
-## Notes / best practices
-- Do NOT commit large binary model files to git. Keep large weights in `models/` and add them to `.gitignore`.
-- LoRA adapters are small — you can store adapters separately and apply to a base model at inference.
-- QLoRA requires bitsandbytes and device-aware loading; QLoRA adapters are applied on top of a quantized base model using PEFT/PeftModel.
-
-
-## Troubleshooting
-- If running out of GPU memory, try:
-  - smaller batch size
-- If inference is slow on WSI tiling, increase batch size (GPU memory permitting) or downsample tiles.
-
