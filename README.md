@@ -29,7 +29,7 @@ conda activate brainsec2
 ```
 
 ### Step 2 — Download Models
-Model weights are large and hosted externally on Google Drive.
+Model weights are large and hosted externally on Google Drive at: https://drive.google.com/drive/folders/1NbLP4E-m5RhgTmHj4mcee1ZR6OcevJIm?usp=sharing
 
 ```bash
 mkdir -p models
