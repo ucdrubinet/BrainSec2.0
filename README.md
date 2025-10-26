@@ -1,7 +1,7 @@
 # 🧠 BrainSec2.0 — WSI Segmentation Toolkit
 
 <p align="center">
-  <img src="brainsec2.png" alt="SegFormer LoRA CPU vs GPU Benchmark" width="650"/>
+  <img src="bs2new.png" alt="" width="650"/>
   <br/>
   <em>Figure 1: End-to-End Whole-Slide-Image (WSI) Segmentation Pipeline using SegFormer</em>
 </p>
@@ -19,15 +19,13 @@
 | **Platform Support** | macOS, Linux, NVIDIA GPUs, and HPC clusters |
 | **Ease of Use** | Plug-and-play scripts + reproducible Conda environment |
 
-## ⚡ Quickstart
+## Quickstart
 
 ### Step 1 — Setup Environment
 Clone the repository and create the Conda environment:
 ```bash
-git clone https://github.com/<your-username>/brainsec2.0.git
-cd brainsec2.0
-conda env create -f environment.yml
-conda activate brainsec
+conda env create -f configs/server_env.yml -n brainsec2
+conda activate brainsec2
 ```
 
 ### Step 2 — Download Models
@@ -39,11 +37,22 @@ unzip ~/Downloads/model.zip -d models/
 ```
 
 ### Step 3 — Run Inference
-
+GPU Inference (≈ 3 min on NVIDIA GPU)
 ```bash
 python src/inference/inference_main.py
 ```
 
+macOS / CPU Inference (≈ 15 min on M-series)
 ```bash
 python src/onnxformatting/inference_onnx.py
 ```
+
+
+## Fine Tuning
+Finetune the base segformer model using a strategy
+```bash
+python src/finetuning/finetune.py --mode lora --model-path <> --config-path <> --image-dir <> --label-dir <>
+```
+
+## Documentation Report
+Releasing soon
