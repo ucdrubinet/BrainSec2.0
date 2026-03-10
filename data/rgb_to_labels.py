@@ -1,4 +1,7 @@
+'''Convert RGB mask images to class label maps'''
+
 import os
+import argparse
 from PIL import Image
 import numpy as np
 
@@ -29,15 +32,21 @@ def mask_to_class_labels(mask_path, output_path):
     class_label_image.save(output_path)
 
 
-mask_dir = "/cache/Ajinkya/BS_optimize/data/finetune/maskdir"  # Directory containing RGB mask tiles
-output_dir = "/cache/Ajinkya/BS_optimize/data/finetune/labeledmaskdir"  # Directory to save class label tiles
-os.makedirs(output_dir, exist_ok=True)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Convert RGB mask images to class label maps")
+    parser.add_argument("mask_dir", help="Directory containing RGB mask tiles")
+    parser.add_argument("output_dir", help="Directory to save class label tiles")
+    args = parser.parse_args()
+    
+    mask_dir = args.mask_dir
+    output_dir = args.output_dir
+    os.makedirs(output_dir, exist_ok=True)
 
-# Process all mask tiles
-for mask_file in os.listdir(mask_dir):
-    if mask_file.endswith(".png"):  
-        mask_path = os.path.join(mask_dir, mask_file)
-        output_path = os.path.join(output_dir, mask_file)
-        mask_to_class_labels(mask_path, output_path)
-        print(f"Processed {mask_file}")
+    # Process all mask tiles
+    for mask_file in os.listdir(mask_dir):
+        if mask_file.endswith(".png"):  
+            mask_path = os.path.join(mask_dir, mask_file)
+            output_path = os.path.join(output_dir, mask_file)
+            mask_to_class_labels(mask_path, output_path)
+            print(f"Processed {mask_file}")
 
