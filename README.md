@@ -43,20 +43,33 @@ unzip ~/Downloads/model.zip -d models/
 ### Step 3 — Run Inference
 GPU Inference (≈ 3 min on NVIDIA GPU)
 ```bash
-python src/inference/inference_main.py
+python src/inference/inference_main.py \
+  --model-type pretrained \
+  --model-dir models/segformer_pretrained \
+  --wsi-path data/sample.svs \
+  --output output.png \
+  --batch-size 8
 ```
 
-macOS / CPU Inference (≈ 15 min on M-series)
+CPU Inference with ONNX (≈ 15 min on M-series)
 ```bash
-python src/onnxformatting/inference_onnx.py
+python src/onnxformatting/inference_onnx.py \
+  --onnx-model models/segformer_lora.onnx \
+  --wsi-path data/sample.svs \
+  --output output_onnx.png \
+  --executor-provider CPUExecutionProvider
 ```
 
 
 ## Fine Tuning
 Finetune the base segformer model using a strategy
 ```bash
-python src/finetuning/finetune.py --mode lora --model-path <> --config-path <> --image-dir <> --label-dir <>
+python src/inference/inference_main.py \
+  --model-type lora \
+  --model-dir models/ft_models/finetuned_lora \
+  --base-model-dir models/segformer_pretrained \
+  --wsi-path data/sample.svs
 ```
 
 ## Documentation Report
-Releasing soon
+https://drive.google.com/file/d/17flD9lxXUXJsLXH2l05qet6YfuAPcc4E/view?usp=sharing
