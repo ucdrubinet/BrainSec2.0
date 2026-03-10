@@ -1,3 +1,4 @@
+''' ONNX inference script for WSI segmentation using Segformer '''
 import os
 import large_image
 from pathlib import Path
@@ -10,6 +11,8 @@ import time
 from datetime import timedelta
 import psutil
 import onnxruntime as ort
+import argparse
+
 
 # Color map for RGB mask
 COLOR_MAP = {
@@ -18,11 +21,30 @@ COLOR_MAP = {
     2: [0, 255, 255]    # Cyan
 }
 
-# Path to ONNX model
-onnx_path = "/home/ajinkya/segmentation/BrainSec2.0/models/segformer_lora.onnx"
-device = torch.device("cpu")
+# CLI argument parser
+parser = argparse.ArgumentParser(description="ONNX WSI inference with Segformer")
+parser.add_argument("--onnx-model", type=str, required=True,
+                    help="Path to ONNX model file")
+parser.add_argument("--wsi-path", type=str, required=True,
+                    help="Path to WSI file")
+parser.add_argument("--output", type=str, default="output_inference_onnx_cpu.png",
+                    help="Output image path (default: output_inference_onnx_cpu.png)")
+parser.add_argument("--executor-provider", type=str, default="CPUExecutionProvider",
+                    choices=["CPUExecutionProvider", "CUDAExecutionProvider"],
+                    help="ONNX execution provider (default: CPUExecutionProvider)")
+parser.add_argument("--tile-size", type=int, default=512,
+                    help="Tile size for processing (default: 512)")
+parser.add_argument("--batch-size", type=int, default=8,
+                    help="Batch size for processing (default: 8)")
+parser.add_argument("--scale-factor", type=float, default=1.0,
+                    help="Scale factor for tile size (default: 1.0)")
+args = parser.parse_args()
 
-ort_session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+# Initialize ONNX session
+ort_session = ort.InferenceSession(args.onnx_model, providers=[args.executor_provider])
+print(f"Loaded ONNX model with provider: {args.executor_provider}")
+
+device = torch.device("cpu")
 def run_onnx_inference(batch_tensor):
     input_name = ort_session.get_inputs()[0].name
     ort_inputs = {input_name: batch_tensor.numpy()}
@@ -30,26 +52,21 @@ def run_onnx_inference(batch_tensor):
     return torch.tensor(ort_outputs[0])  
 
 # Load WSI using large_image
-local_wsi_dir = Path("/home/ajinkya/BS_two/data/iou_wsi")
-wsi_name = "NA4972-02_AB17-24.svs"
-ts = large_image.getTileSource(
-    local_wsi_dir / wsi_name,
-    format='openslide'  # Explicitly use OpenSlide
-)
-print("Tile source class:", ts.__class__)
+ts = large_image.getTileSource(args.wsi_path, format='openslide')
+print(f"Loaded WSI: {args.wsi_path}")
 
 
 # Image metadata
 large_image_metadata = ts.getMetadata()
-sf = 1.0 
-tile_size = 512
+sf = args.scale_factor
+tile_size = args.tile_size
 fr_tile_size = int(tile_size / sf)  
 xys = [
     (x, y)
     for x in range(0, large_image_metadata['sizeX'], fr_tile_size)
     for y in range(0, large_image_metadata['sizeY'], fr_tile_size)
 ]
-print(f"{len(xys)} tiles to process.")
+print(f"{len(xys)} tiles to process")
 
 transform = transforms.Compose([
     transforms.Resize((tile_size, tile_size)),  
@@ -60,21 +77,22 @@ transform = transforms.Compose([
 wsi_segmentation_map = np.zeros(
     (large_image_metadata['sizeY'], large_image_metadata['sizeX']), dtype=np.uint8
 )
-batch_size = 8
+batch_size = args.batch_size
 idx = list(range(0, len(xys), batch_size))
-print(f'Batches = {len(idx)}, with batch size = {batch_size}.')
+print(f"Processing {len(idx)} batches with batch size = {batch_size}")
 
 
 
 # Log memory before
 process = psutil.Process(os.getpid())
 mem_before = process.memory_info().rss / (1024 ** 2)  # MB
+
 # Inference loop
+print("Starting inference...")
 start_time = time.time()
 for i in idx:
     batch_xys = xys[i:i + batch_size]
     batch_tiles = []
-    print(i)
 
     for x, y in batch_xys:
         region_width = min(fr_tile_size, large_image_metadata['sizeX'] - x)

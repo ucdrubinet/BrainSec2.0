@@ -1,4 +1,5 @@
 #merge LoRA weights into a base Segformer model for easier export to ONNX
+# this script uses hardcoded paths as easier to run standalone.
 from transformers import SegformerForSemanticSegmentation,SegformerConfig
 from peft import PeftModel
 config = SegformerConfig.from_pretrained("/home/ajinkya/BS_two/models/models/segformer_JC/config.json")
