@@ -31,6 +31,10 @@ conda activate brainsec2
 ### Step 2 — Download Models
 Model weights are large and hosted externally on Google Drive at: https://drive.google.com/drive/folders/1NbLP4E-m5RhgTmHj4mcee1ZR6OcevJIm?usp=sharing
 
+More public WSI data available at:
+1. https://zenodo.org/records/1470797 (.svs)
+2. https://datadryad.org/dataset/doi:10.5061/dryad.7h44j107j (.czi)
+
 ```bash
 mkdir -p models
 unzip ~/Downloads/model.zip -d models/
