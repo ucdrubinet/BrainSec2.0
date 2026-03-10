@@ -1,3 +1,5 @@
+''' Main inference script for WSI segmentation using Segformer '''
+
 import os
 import large_image
 from pathlib import Path
@@ -19,6 +21,8 @@ parser.add_argument("--model-type", type=str, default="lora",
                     help="Model type: pretrained | finetuned_full | finetuned_lastlayer | lora | qlora")
 parser.add_argument("--model-dir", type=str, default=None,
                     help="Path to model directory (contains config.json) or adapter dir for LoRA/QLoRA")
+parser.add_argument("--base-model-dir", type=str, default=None,
+                    help="Base model directory (required for lora/qlora models)")
 parser.add_argument("--device", type=str, default=None,
                     help="Device to use: cuda or cpu (default: cuda if available)")
 parser.add_argument("--wsi-path", type=str, default="/home/ajinkya/BS_two/data/iou_wsi/NA4972-02_AB17-24.svs",
@@ -48,7 +52,12 @@ COLOR_MAP = {
 model_dir = args.model_dir 
 print(f"Loading model from: {model_dir}")
 
-model = load_model(args.model_type, device, model_dir=model_dir)
+model = load_model(
+    model_type=args.model_type,
+    device=device,
+    model_dir=model_dir,
+    base_model_dir=args.base_model_dir
+)
 wsi_path = Path(args.wsi_path)
 ts = large_image.getTileSource(wsi_path, format='openslide')
 metadata = ts.getMetadata()
